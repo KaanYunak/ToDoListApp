@@ -89,7 +89,7 @@ build\desktop-app\Sisifos\Sisifos.exe
 
 Script ayrıca masaüstüne `Sisifos.lnk` kısayolu oluşturur. Exe, yanındaki runtime dosyalarıyla birlikte çalıştığı için `build\desktop-app\Sisifos` klasörünü silmeyin.
 
-Repo içindeki `sisifos.ico` varsayılan uygulama iconudur. GitHub'dan klonlayan kullanıcılar ekstra ayar yapmadan bu iconla exe ve kısayol üretebilir.
+Repo içindeki `sisifos.ico` varsayılan Windows exe/kısayol iconudur. `sisifos.png` ise uygulama pencere çerçevesi için daha yüksek kaliteli frame iconu olarak kullanılır. GitHub'dan klonlayan kullanıcılar ekstra ayar yapmadan bu iconlarla exe, kısayol ve pencere iconu üretebilir.
 
 Özel icon ile üretmek için `.ico` dosyası verin:
 

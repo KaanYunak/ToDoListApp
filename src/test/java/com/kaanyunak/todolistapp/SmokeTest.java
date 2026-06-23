@@ -5,6 +5,7 @@ import com.kaanyunak.todolistapp.model.Task;
 import com.kaanyunak.todolistapp.model.TaskCategory;
 import com.kaanyunak.todolistapp.persistence.DataStore;
 import com.kaanyunak.todolistapp.service.TaskService;
+import com.kaanyunak.todolistapp.ui.AppIconLoader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,10 +43,11 @@ public class SmokeTest {
                 .anyMatch(task -> "Ship app".equals(task.getTitle()));
         boolean dailyStillVisibleToday = service.getDailyTasksForToday().stream()
                 .anyMatch(task -> "Daily task".equals(task.getTitle()) && task.isCompleted());
+        boolean iconLoads = !AppIconLoader.loadApplicationIcons("").isEmpty();
 
         Files.deleteIfExists(tempData);
 
-        if (!projectArchived || !dailyStillVisibleToday) {
+        if (!projectArchived || !dailyStillVisibleToday || !iconLoads) {
             throw new IllegalStateException("Smoke test failed");
         }
         System.out.println("SMOKE_OK");

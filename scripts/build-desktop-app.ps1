@@ -14,7 +14,8 @@ $appDir = Join-Path $dest "Sisifos"
 $exe = Join-Path $appDir "Sisifos.exe"
 $defaultData = Join-Path $env:USERPROFILE ".sisifos\data.json"
 $legacyData = Join-Path $env:USERPROFILE ".todolistapp\data.json"
-$bundledIconPath = Join-Path $root "sisifos.ico"
+$bundledIcoPath = Join-Path $root "sisifos.ico"
+$bundledPngPath = Join-Path $root "sisifos.png"
 $iconPathFromSettings = $false
 
 if ([string]::IsNullOrWhiteSpace($IconPath) -and -not (Test-Path $defaultData) -and (Test-Path $legacyData)) {
@@ -33,17 +34,24 @@ if ([string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path $defaultData)) {
     }
 }
 
-if ([string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path $bundledIconPath)) {
-    $IconPath = $bundledIconPath
+if ([string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path $bundledIcoPath)) {
+    $IconPath = $bundledIcoPath
 }
 
 if (-not [string]::IsNullOrWhiteSpace($IconPath) -and -not (Test-Path $IconPath)) {
     if ($iconPathFromSettings) {
         Write-Warning "Ayar dosyasındaki icon bulunamadı, proje iconu kullanılacak: $IconPath"
-        $IconPath = if (Test-Path $bundledIconPath) { $bundledIconPath } else { "" }
+        $IconPath = if (Test-Path $bundledIcoPath) { $bundledIcoPath } else { "" }
     } else {
         throw "Icon dosyası bulunamadı: $IconPath"
     }
+}
+
+$packageIconPath = ""
+if (-not [string]::IsNullOrWhiteSpace($IconPath) -and [System.IO.Path]::GetExtension($IconPath).Equals(".ico", [System.StringComparison]::OrdinalIgnoreCase)) {
+    $packageIconPath = $IconPath
+} elseif (Test-Path $bundledIcoPath) {
+    $packageIconPath = $bundledIcoPath
 }
 
 $resolvedRoot = [System.IO.Path]::GetFullPath($root)
@@ -88,7 +96,7 @@ if ($ShortcutOnly) {
         throw "ShortcutOnly için önce app-image üretilmeli: $exe"
     }
     if (-not $NoShortcut) {
-        New-DesktopShortcut -TargetExe $exe -WorkingDirectory $appDir -Icon $IconPath
+        New-DesktopShortcut -TargetExe $exe -WorkingDirectory $appDir -Icon $packageIconPath
     }
     Write-Host "Desktop uygulaması hazır: $exe"
     exit 0
@@ -97,6 +105,10 @@ if ($ShortcutOnly) {
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $buildScript
 if ($LASTEXITCODE -ne 0) {
     throw "Build başarısız oldu. Çıkış kodu: $LASTEXITCODE"
+}
+
+if (Get-Process Sisifos -ErrorAction SilentlyContinue) {
+    throw "Sisifos şu anda açık. Desktop paketini yenilemeden önce uygulamayı kapatıp scripti tekrar çalıştırın."
 }
 
 if (Test-Path $appDir) {
@@ -118,8 +130,8 @@ $args = @(
     "--dest", $dest
 )
 
-if (-not [string]::IsNullOrWhiteSpace($IconPath)) {
-    $args += @("--icon", $IconPath)
+if (-not [string]::IsNullOrWhiteSpace($packageIconPath)) {
+    $args += @("--icon", $packageIconPath)
 }
 
 & jpackage @args
@@ -131,8 +143,12 @@ if (-not (Test-Path $exe)) {
     throw "Exe üretilemedi: $exe"
 }
 
+if (Test-Path $bundledPngPath) {
+    Copy-Item -LiteralPath $bundledPngPath -Destination (Join-Path $appDir "Sisifos.png") -Force
+}
+
 if (-not $NoShortcut) {
-    New-DesktopShortcut -TargetExe $exe -WorkingDirectory $appDir -Icon $IconPath
+    New-DesktopShortcut -TargetExe $exe -WorkingDirectory $appDir -Icon $packageIconPath
 }
 
 Write-Host "Desktop uygulaması hazır: $exe"

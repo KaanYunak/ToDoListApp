@@ -65,6 +65,7 @@ public class MainFrame extends JFrame {
         super("Sisifos");
         this.taskService = taskService;
         this.apiServer = apiServer;
+        applyWindowIcon();
         configureWindow();
         setContentPane(buildRoot());
         taskService.addListener(() -> SwingUtilities.invokeLater(this::refreshAll));
@@ -77,6 +78,13 @@ public class MainFrame extends JFrame {
         setMinimumSize(new Dimension(1080, 700));
         setSize(1240, 780);
         setLocationRelativeTo(null);
+    }
+
+    private void applyWindowIcon() {
+        List<java.awt.Image> icons = AppIconLoader.loadApplicationIcons(taskService.getSettings().getExeIconPath());
+        if (!icons.isEmpty()) {
+            setIconImages(icons);
+        }
     }
 
     private JSplitPane buildRoot() {
@@ -286,7 +294,7 @@ GET /api/completed
         addSettingRow(box, 1, "Görev rengi", taskField, colorButton(taskField));
         addSettingRow(box, 2, "Tamamlanan görev rengi", completedField, colorButton(completedField));
         addSettingRow(box, 3, "Panel rengi", panelField, colorButton(panelField));
-        addSettingRow(box, 4, "Exe icon (.ico)", iconField, fileButton(iconField));
+        addSettingRow(box, 4, "Uygulama icon (.ico/.png)", iconField, fileButton(iconField));
 
         JPanel actions = new JPanel();
         actions.setOpaque(false);
@@ -733,6 +741,7 @@ GET /api/completed
                 panelField.getText().trim(),
                 iconField.getText().trim()
         );
+        applyWindowIcon();
         setContentPane(buildRoot());
         revalidate();
         repaint();
