@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
     private Color taskCompletedColor;
 
     public MainFrame(TaskService taskService, LocalApiServer apiServer) {
-        super("ToDoListApp");
+        super("Sisifos");
         this.taskService = taskService;
         this.apiServer = apiServer;
         configureWindow();
@@ -117,13 +117,13 @@ public class MainFrame extends JFrame {
         panel.setBackground(panelColor);
         panel.setBorder(BorderFactory.createEmptyBorder(24, 18, 24, 18));
 
-        JLabel title = new JLabel("ToDoListApp");
+        JLabel title = new JLabel("Sisifos");
         title.setForeground(WHITE);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(title);
 
-        JLabel subtitle = new JLabel("Daily + Project Tasks");
+        JLabel subtitle = new JLabel("Sürekli çaba için görev hafızası");
         subtitle.setForeground(new Color(170, 170, 170));
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(subtitle);

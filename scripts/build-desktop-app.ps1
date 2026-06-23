@@ -10,18 +10,39 @@ $root = Split-Path -Parent $PSScriptRoot
 $buildScript = Join-Path $PSScriptRoot "build.ps1"
 $dest = Join-Path $root "build\desktop-app"
 $packageInput = Join-Path $root "build\package-input"
-$appDir = Join-Path $dest "ToDoListApp"
-$exe = Join-Path $appDir "ToDoListApp.exe"
-$defaultData = Join-Path $env:USERPROFILE ".todolistapp\data.json"
+$appDir = Join-Path $dest "Sisifos"
+$exe = Join-Path $appDir "Sisifos.exe"
+$defaultData = Join-Path $env:USERPROFILE ".sisifos\data.json"
+$legacyData = Join-Path $env:USERPROFILE ".todolistapp\data.json"
+$bundledIconPath = Join-Path $root "sisifos.ico"
+$iconPathFromSettings = $false
+
+if ([string]::IsNullOrWhiteSpace($IconPath) -and -not (Test-Path $defaultData) -and (Test-Path $legacyData)) {
+    $defaultData = $legacyData
+}
 
 if ([string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path $defaultData)) {
     try {
         $data = Get-Content $defaultData -Raw | ConvertFrom-Json
         if ($data.settings.exeIconPath) {
             $IconPath = [string]$data.settings.exeIconPath
+            $iconPathFromSettings = $true
         }
     } catch {
         Write-Warning "Ayar dosyasından icon okunamadı: $($_.Exception.Message)"
+    }
+}
+
+if ([string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path $bundledIconPath)) {
+    $IconPath = $bundledIconPath
+}
+
+if (-not [string]::IsNullOrWhiteSpace($IconPath) -and -not (Test-Path $IconPath)) {
+    if ($iconPathFromSettings) {
+        Write-Warning "Ayar dosyasındaki icon bulunamadı, proje iconu kullanılacak: $IconPath"
+        $IconPath = if (Test-Path $bundledIconPath) { $bundledIconPath } else { "" }
+    } else {
+        throw "Icon dosyası bulunamadı: $IconPath"
     }
 }
 
@@ -39,7 +60,7 @@ function New-DesktopShortcut {
     )
 
     $desktop = [Environment]::GetFolderPath("Desktop")
-    $shortcutPath = Join-Path $desktop "ToDoListApp.lnk"
+    $shortcutPath = Join-Path $desktop "Sisifos.lnk"
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = $TargetExe
@@ -51,6 +72,15 @@ function New-DesktopShortcut {
     }
     $shortcut.Save()
     Write-Host "Masaüstü kısayolu oluşturuldu: $shortcutPath"
+
+    $legacyShortcutPath = Join-Path $desktop "ToDoListApp.lnk"
+    if (Test-Path $legacyShortcutPath) {
+        $legacy = $shell.CreateShortcut($legacyShortcutPath)
+        if ($legacy.TargetPath -like "*\ToDoListApp.exe" -or $legacy.TargetPath -like "*\desktop-app\ToDoListApp\*") {
+            Remove-Item -LiteralPath $legacyShortcutPath -Force
+            Write-Host "Eski ToDoListApp kısayolu kaldırıldı: $legacyShortcutPath"
+        }
+    }
 }
 
 if ($ShortcutOnly) {
@@ -77,21 +107,18 @@ if (Test-Path $packageInput) {
 }
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 New-Item -ItemType Directory -Force -Path $packageInput | Out-Null
-Copy-Item -LiteralPath (Join-Path $root "build\ToDoListApp.jar") -Destination $packageInput -Force
+Copy-Item -LiteralPath (Join-Path $root "build\Sisifos.jar") -Destination $packageInput -Force
 
 $args = @(
     "--type", "app-image",
-    "--name", "ToDoListApp",
+    "--name", "Sisifos",
     "--input", $packageInput,
-    "--main-jar", "ToDoListApp.jar",
+    "--main-jar", "Sisifos.jar",
     "--main-class", "com.kaanyunak.todolistapp.App",
     "--dest", $dest
 )
 
 if (-not [string]::IsNullOrWhiteSpace($IconPath)) {
-    if (-not (Test-Path $IconPath)) {
-        throw "Icon dosyası bulunamadı: $IconPath"
-    }
     $args += @("--icon", $IconPath)
 }
 

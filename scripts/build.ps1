@@ -6,7 +6,7 @@ $build = Join-Path $root "build"
 $classes = Join-Path $build "classes"
 $sources = Join-Path $build "sources.txt"
 $manifest = Join-Path $build "manifest.mf"
-$jar = Join-Path $build "ToDoListApp.jar"
+$jar = Join-Path $build "Sisifos.jar"
 
 New-Item -ItemType Directory -Force -Path $classes | Out-Null
 $sourceFiles = Get-ChildItem -Path $src -Recurse -Filter *.java | ForEach-Object {
@@ -23,7 +23,10 @@ try {
     }
 
     [System.IO.File]::WriteAllText($manifest, "Main-Class: com.kaanyunak.todolistapp.App`n", [System.Text.Encoding]::ASCII)
-    & jar cfm "build\ToDoListApp.jar" "build\manifest.mf" -C "build\classes" .
+    if (Test-Path $jar) {
+        Remove-Item -LiteralPath $jar -Force
+    }
+    & jar cfm "build\Sisifos.jar" "build\manifest.mf" -C "build\classes" .
     if ($LASTEXITCODE -ne 0) {
         throw "jar oluşturulamadı. Çıkış kodu: $LASTEXITCODE"
     }

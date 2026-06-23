@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
-$jar = Join-Path $root "build\ToDoListApp.jar"
+$jar = Join-Path $root "build\Sisifos.jar"
 $buildScript = Join-Path $PSScriptRoot "build.ps1"
 
 if (-not (Test-Path $jar)) {

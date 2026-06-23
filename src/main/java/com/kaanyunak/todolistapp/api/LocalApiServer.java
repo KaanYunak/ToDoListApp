@@ -74,7 +74,7 @@ public class LocalApiServer {
             URI uri = exchange.getRequestURI();
             String path = uri.getPath();
             if ("/health".equals(path)) {
-                sendJson(exchange, 200, Map.of("ok", true, "app", "ToDoListApp"));
+                sendJson(exchange, 200, Map.of("ok", true, "app", "Sisifos"));
                 return;
             }
             if (!isAuthorized(exchange)) {

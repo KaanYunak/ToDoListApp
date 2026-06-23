@@ -11,8 +11,8 @@ import java.nio.file.Path;
 
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
-        Path tempData = Files.createTempFile("todo-smoke", ".json");
-        System.setProperty("todolist.data", tempData.toString());
+        Path tempData = Files.createTempFile("sisifos-smoke", ".json");
+        System.setProperty("sisifos.data", tempData.toString());
 
         TaskService service = new TaskService(new DataStore());
         var project = service.createProject("Smoke Project");

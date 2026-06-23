@@ -1,10 +1,10 @@
-# ToDoListApp
+# Sisifos
 
-ToDoListApp, günlük rutinleri ve proje işlerini aynı masaüstü uygulamasında yönetmek için hazırlanmış Java tabanlı bir görev uygulamasıdır. Günlük görevler tekrar kurallarıyla yenilenebilir; proje görevleri alt görevlere ayrılarak divide and conquer mantığıyla takip edilebilir. Uygulama ayrıca yerel bir LLM API açar; böylece başka araçlar görev oluşturabilir, listeleyebilir ve tamamlayabilir.
+Sisifos, sürekli devam eden işlerimizi, günlük ritüellerimizi ve proje adımlarımızı unutmamak için hazırlanmış Java tabanlı bir masaüstü görev uygulamasıdır. Adını Yunan mitolojisindeki Sisyphus/Sisifos'tan alır: her gün yeniden başlayan çaba, bu kez daha düzenli ve izlenebilir hale gelir.
 
 ```mermaid
 flowchart LR
-    User["Kullanıcı"] --> UI["Swing Desktop UI"]
+    User["Kullanıcı"] --> UI["Sisifos Desktop UI"]
     UI --> Daily["Günlük Görevler"]
     UI --> Projects["Projeler ve Alt Görevler"]
     UI --> Done["Tamamlananlar Geçmişi"]
@@ -12,7 +12,7 @@ flowchart LR
     LLM["LLM / Otomasyon Aracı"] --> API["Yerel HTTP API<br/>127.0.0.1"]
     API --> Service["TaskService"]
     UI --> Service
-    Service --> Store["JSON Veri Dosyası<br/>%USERPROFILE%/.todolistapp/data.json"]
+    Service --> Store["JSON Veri Dosyası<br/>%USERPROFILE%/.sisifos/data.json"]
     Service --> Done
 ```
 
@@ -30,7 +30,7 @@ flowchart LR
 - Tamamlanan görevler tarih ve saat bilgisiyle tutulur, en yeni tamamlanan en üstte görünür.
 - LLM ve otomasyon araçları için token korumalı yerel HTTP API bulunur.
 - Ayarlar ekranından arka plan rengi, görev rengi, tamamlanan görev rengi, panel rengi ve exe icon dosyası seçilebilir.
-- `jpackage` ile masaüstü kısayolu ve `ToDoListApp.exe` içeren app-image üretilebilir.
+- `jpackage` ile masaüstü kısayolu ve `Sisifos.exe` içeren app-image üretilebilir.
 
 ## Gereksinimler
 
@@ -84,15 +84,17 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-desktop-
 Çıktı:
 
 ```text
-build\desktop-app\ToDoListApp\ToDoListApp.exe
+build\desktop-app\Sisifos\Sisifos.exe
 ```
 
-Script ayrıca masaüstüne `ToDoListApp.lnk` kısayolu oluşturur. Exe, yanındaki runtime dosyalarıyla birlikte çalıştığı için `build\desktop-app\ToDoListApp` klasörünü silmeyin.
+Script ayrıca masaüstüne `Sisifos.lnk` kısayolu oluşturur. Exe, yanındaki runtime dosyalarıyla birlikte çalıştığı için `build\desktop-app\Sisifos` klasörünü silmeyin.
+
+Repo içindeki `sisifos.ico` varsayılan uygulama iconudur. GitHub'dan klonlayan kullanıcılar ekstra ayar yapmadan bu iconla exe ve kısayol üretebilir.
 
 Özel icon ile üretmek için `.ico` dosyası verin:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-desktop-app.ps1 -IconPath "C:\icons\todo.ico"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-desktop-app.ps1 -IconPath "C:\icons\sisifos.ico"
 ```
 
 Ayarlar ekranında icon yolu kaydedildiyse script parametre verilmeden de bu yolu okumaya çalışır.
@@ -172,11 +174,13 @@ Invoke-RestMethod "http://127.0.0.1:4567/api/projects/PROJECT_ID" -Method Patch 
 Varsayılan veri dosyası:
 
 ```text
-%USERPROFILE%\.todolistapp\data.json
+%USERPROFILE%\.sisifos\data.json
 ```
+
+Eski `%USERPROFILE%\.todolistapp\data.json` dosyası bulunursa, Sisifos ilk açılışta veriyi yeni konuma otomatik taşır.
 
 Farklı bir veri dosyasıyla çalıştırmak için:
 
 ```powershell
-java -Dtodolist.data=C:\temp\todolist-data.json -jar .\build\ToDoListApp.jar
+java -Dsisifos.data=C:\temp\sisifos-data.json -jar .\build\Sisifos.jar
 ```

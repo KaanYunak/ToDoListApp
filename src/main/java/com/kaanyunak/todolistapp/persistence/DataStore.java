@@ -7,23 +7,34 @@ import java.nio.file.Path;
 
 public class DataStore {
     private final Path dataFile;
+    private final Path legacyDataFile;
 
     public DataStore() {
-        String configuredPath = System.getProperty("todolist.data");
+        String configuredPath = System.getProperty("sisifos.data");
+        if (configuredPath == null || configuredPath.isBlank()) {
+            configuredPath = System.getProperty("todolist.data");
+        }
         if (configuredPath != null && !configuredPath.isBlank()) {
             this.dataFile = Path.of(configuredPath);
+            this.legacyDataFile = null;
         } else {
-            this.dataFile = Path.of(System.getProperty("user.home"), ".todolistapp", "data.json");
+            this.dataFile = Path.of(System.getProperty("user.home"), ".sisifos", "data.json");
+            this.legacyDataFile = Path.of(System.getProperty("user.home"), ".todolistapp", "data.json");
         }
     }
 
     public AppState load() {
-        if (!Files.exists(dataFile)) {
+        Path sourceFile = Files.exists(dataFile) ? dataFile : legacySourceIfAvailable();
+        if (sourceFile == null) {
             return new AppState();
         }
         try {
-            String json = Files.readString(dataFile, StandardCharsets.UTF_8);
-            return AppState.fromJson(SimpleJson.parse(json));
+            String json = Files.readString(sourceFile, StandardCharsets.UTF_8);
+            AppState state = AppState.fromJson(SimpleJson.parse(json));
+            if (!sourceFile.equals(dataFile)) {
+                save(state);
+            }
+            return state;
         } catch (IOException | IllegalArgumentException ex) {
             System.err.println("Veri dosyası okunamadı, yeni durum başlatılıyor: " + ex.getMessage());
             return new AppState();
@@ -43,5 +54,12 @@ public class DataStore {
 
     public Path getDataFile() {
         return dataFile;
+    }
+
+    private Path legacySourceIfAvailable() {
+        if (legacyDataFile != null && Files.exists(legacyDataFile)) {
+            return legacyDataFile;
+        }
+        return null;
     }
 }
