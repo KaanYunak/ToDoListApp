@@ -8,7 +8,8 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $buildScript = Join-Path $PSScriptRoot "build.ps1"
-$dest = Join-Path $root "build\desktop"
+$dest = Join-Path $root "build\desktop-app"
+$packageInput = Join-Path $root "build\package-input"
 $appDir = Join-Path $dest "ToDoListApp"
 $exe = Join-Path $appDir "ToDoListApp.exe"
 $defaultData = Join-Path $env:USERPROFILE ".todolistapp\data.json"
@@ -71,12 +72,17 @@ if ($LASTEXITCODE -ne 0) {
 if (Test-Path $appDir) {
     Remove-Item -LiteralPath $appDir -Recurse -Force
 }
+if (Test-Path $packageInput) {
+    Remove-Item -LiteralPath $packageInput -Recurse -Force
+}
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
+New-Item -ItemType Directory -Force -Path $packageInput | Out-Null
+Copy-Item -LiteralPath (Join-Path $root "build\ToDoListApp.jar") -Destination $packageInput -Force
 
 $args = @(
     "--type", "app-image",
     "--name", "ToDoListApp",
-    "--input", (Join-Path $root "build"),
+    "--input", $packageInput,
     "--main-jar", "ToDoListApp.jar",
     "--main-class", "com.kaanyunak.todolistapp.App",
     "--dest", $dest

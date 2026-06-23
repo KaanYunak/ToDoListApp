@@ -84,10 +84,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-desktop-
 Çıktı:
 
 ```text
-build\desktop\ToDoListApp\ToDoListApp.exe
+build\desktop-app\ToDoListApp\ToDoListApp.exe
 ```
 
-Script ayrıca masaüstüne `ToDoListApp.lnk` kısayolu oluşturur. Exe, yanındaki runtime dosyalarıyla birlikte çalıştığı için `build\desktop\ToDoListApp` klasörünü silmeyin.
+Script ayrıca masaüstüne `ToDoListApp.lnk` kısayolu oluşturur. Exe, yanındaki runtime dosyalarıyla birlikte çalıştığı için `build\desktop-app\ToDoListApp` klasörünü silmeyin.
 
 Özel icon ile üretmek için `.ico` dosyası verin:
 
